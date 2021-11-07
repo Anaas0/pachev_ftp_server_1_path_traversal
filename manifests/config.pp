@@ -61,9 +61,9 @@ class pachev_ftp_server_1_path_traversal::config {
   }
 
   # Create flag file
-  file { 'home/ftpusr/pachev_ftp/flagtest.txt':
+  file { 'home/ftpusr/pachev_ftp/flag.txt':
     ensure  => present,
-    source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/flagtest.txt',
+    source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/flag.txt',
     require => file['home/ftpusr/pachev_ftp'],
   }
 
