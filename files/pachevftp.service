@@ -1,0 +1,15 @@
+[Unit]
+Description=Pachev FTP Server
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=ftpusr
+ExecStart=/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftp_server -p 2121
+WorkingDirectory=/opt/pachev_ftp
+
+[Install]
+WantedBy=multi-user.target
