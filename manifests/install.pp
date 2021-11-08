@@ -7,18 +7,21 @@ class pachev_ftp_server_1_path_traversal::install {
   ############################################## ~PROXY SETTINGS START~ ###############################################
 
   exec { 'set-nic-dhcp':
-    command => 'sudo dhclient ens3',
-    notify  => Exec['set-sed'],
+    command   => 'sudo dhclient ens3',
+    notify    => Exec['set-sed'],
+    logoutput => true,
   }
 
   exec { 'set-sed':
-    command => "sudo sed -i 's/172.33.0.51/172.22.0.51/g' /etc/systemd/system/docker.service.d/* /etc/environment /etc/apt/apt.conf /etc/security/pam_env.conf",
-    notify  => Exec['set-proxy_env'],
+    command   => "sudo sed -i 's/172.33.0.51/172.22.0.51/g' /etc/systemd/system/docker.service.d/* /etc/environment /etc/apt/apt.conf /etc/security/pam_env.conf",
+    notify    => Exec['set-proxy_env'],
+    logoutput => true,
   }
 
   exec { 'set-proxy_env':
-    command => 'export http_proxy=172.22.0.51:3128; export https_proxy=172.22.0.51:3128;',
-    notify  => Package['install-rustc'],
+    command   => 'export http_proxy=172.22.0.51:3128; export https_proxy=172.22.0.51:3128;',
+    notify    => Package['install-rustc'],
+    logoutput => true,
   }
 
   ##############################################  ~PROXY SETTINGS END~  ###############################################
