@@ -40,27 +40,30 @@ class pachev_ftp_server_1_path_traversal::install {
 
   # Unzip
   exec { 'unzip-pachev-ftp-master':
-    command => 'unzip pachev_ftp-master.zip',
-    cwd     => '/opt/pachev_ftp/',
-    creates => '/opt/pachev_ftp/pachev_ftp-master/',
-    require => Package['install-rustc'],
-    notify  => Exec['update-cargo'],
+    command   => 'unzip pachev_ftp-master.zip',
+    cwd       => '/opt/pachev_ftp/',
+    creates   => '/opt/pachev_ftp/pachev_ftp-master/',
+    require   => Package['install-rustc'],
+    notify    => Exec['update-cargo'],
+    logoutput => true,
   }
 
   # Update Cargo
   exec { 'update-cargo':
-    command => 'cargo update',
-    cwd     => '/opt/pachev_ftp/pachev_ftp-master/ftp_server/',
-    require => Exec['unzip-pachev-ftp-master'],
-    notify  => Exec['build-ftpserver'],
+    command   => 'cargo update',
+    cwd       => '/opt/pachev_ftp/pachev_ftp-master/ftp_server/',
+    require   => Exec['unzip-pachev-ftp-master'],
+    notify    => Exec['build-ftpserver'],
+    logoutput => true,
   }
 
   # Cargo build 
   exec { 'build-ftpserver':
-    command => 'cargo build --release',
-    cwd     => '/opt/pachev_ftp/pachev_ftp-master/ftp_server/',
-    require => Exec['update-cargo'],
-    notify  => Exec['undo-proxy-http'],
+    command   => 'cargo build --release',
+    cwd       => '/opt/pachev_ftp/pachev_ftp-master/ftp_server/',
+    require   => Exec['update-cargo'],
+    notify    => Exec['undo-proxy-http'],
+    logoutput => true,
   }
 
   # (Make sure files are in the correct spot)
@@ -68,21 +71,24 @@ class pachev_ftp_server_1_path_traversal::install {
   # Undo proxy settings
   ############################################## ~PROXY SETTINGS UNDO START~ ##############################################
   exec { 'undo-proxy-http':
-    command => 'unset http_proxy',
-    require => Exec['build-ftpserver'],
-    notify  => Exec['undo-proxy-https'],
+    command   => 'unset http_proxy',
+    require   => Exec['build-ftpserver'],
+    notify    => Exec['undo-proxy-https'],
+    logoutput => true,
   }
 
   exec { 'undo-proxy-https':
-    command => 'unset http_proxys',
-    require => Exec['undo-proxy-http'],
-    notify  => Exec['restart-networking'],
+    command   => 'unset http_proxys',
+    require   => Exec['undo-proxy-http'],
+    notify    => Exec['restart-networking'],
+    logoutput => true,
   }
 
   exec { 'restart-networking':
-    command => 'service networking restart',
-    require => Exec['undo-proxy-https'],
-    notify  => File['opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
+    command   => 'service networking restart',
+    require   => Exec['undo-proxy-https'],
+    notify    => File['opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
+    logoutput => true,
   }
 
   ##############################################  ~PROXY SETTINGS UNDO END~  ##############################################

@@ -82,19 +82,22 @@ class pachev_ftp_server_1_path_traversal::config {
   # echo 'net.ipv4.conf.all.route_localnet=1' >> /etc/sysctl.conf
   # sudo iptables -t nat -I PREROUTING -p tcp --dport 21 -j DNAT --to 127.0.0.1:2121
   exec { 'port-forward-route':
-    command => 'sysctl -w net.ipv4.conf.all.route_localnet=1',
-    notify  => Exec['port-forward-route-persist'],
+    command   => 'sysctl -w net.ipv4.conf.all.route_localnet=1',
+    notify    => Exec['port-forward-route-persist'],
+    logoutput => true,
   }
 
   exec { 'port-forward-route-persist':
-    command => "echo 'net.ipv4.conf.all.route_localnet=1' >> /etc/sysctl.conf",
-    require => Exec['port-forward-route'],
-    notify  => Exec['iptables'],
+    command   => "echo 'net.ipv4.conf.all.route_localnet=1' >> /etc/sysctl.conf",
+    require   => Exec['port-forward-route'],
+    notify    => Exec['iptables'],
+    logoutput => true,
   }
 
   exec { 'iptables':
-    command => 'iptables -t nat -I PREROUTING -p tcp --dport 21 -j DNAT --to 127.0.0.1:2121',
-    require => Exec['port-forward-route'],
-    notify  => File['/etc/systemd/system/pachevftp.service'],
+    command   => 'iptables -t nat -I PREROUTING -p tcp --dport 21 -j DNAT --to 127.0.0.1:2121',
+    require   => Exec['port-forward-route'],
+    notify    => File['/etc/systemd/system/pachevftp.service'],
+    logoutput => true,
   }
 }
