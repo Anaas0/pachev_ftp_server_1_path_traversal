@@ -35,45 +35,45 @@ class pachev_ftp_server_1_path_traversal::config {
   file { '/opt/pachev_ftp/pachevftp.service':
     ensure => present,
     source => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/pachevftp.service',
-    notify => File['conf/fsys.cfg'],
+    notify => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/fsys.cfg'],
   }
 
   # Create conf/fsys.cfg
-  file { 'conf/fsys.cfg':
+  file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/fsys.cfg':
     ensure  => present,
     source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/fsys.cfg',
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
-    notify  => File['conf/users.cfg'],
+    notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/users.cfg'],
   }
 
   # Create conf/users.cfg
-  file { 'conf/users.cfg':
+  file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/users.cfg':
     ensure  => present,
     source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/users.cfg',
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
-    notify  => File['logs/fserver.log'],
+    notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs/fserver.log'],
   }
 
   # Create logs/fserver.log
-  file { 'logs/fserver.log':
+  file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs/fserver.log':
     ensure  => present,
     source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/fserver.log',
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs'],
-    notify  => File['home/ftpusr/pachev_ftp'],
+    notify  => File['/home/ftpusr/pachev_ftp'],
   }
 
   # Create directory for the flag
-  file { 'home/ftpusr/pachev_ftp':
+  file { '/home/ftpusr/pachev_ftp':
     ensure  => directory,
     require => User['ftpusr'],
-    notify  => File['home/ftpusr/pachev_ftp/flag.txt'],
+    notify  => File['/home/ftpusr/pachev_ftp/flag.txt'],
   }
 
   # Create flag file
-  file { 'home/ftpusr/pachev_ftp/flag.txt':
+  file { '/home/ftpusr/pachev_ftp/flag.txt':
     ensure  => present,
     source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/flag.txt',
-    require => File['home/ftpusr/pachev_ftp'],
+    require => File['/home/ftpusr/pachev_ftp'],
     notify  => Exec['port-forward-route'],
   }
 
@@ -85,6 +85,7 @@ class pachev_ftp_server_1_path_traversal::config {
     command   => 'sysctl -w net.ipv4.conf.all.route_localnet=1',
     notify    => Exec['port-forward-route-persist'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   exec { 'port-forward-route-persist':
@@ -92,6 +93,7 @@ class pachev_ftp_server_1_path_traversal::config {
     require   => Exec['port-forward-route'],
     notify    => Exec['iptables'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   exec { 'iptables':
@@ -99,5 +101,6 @@ class pachev_ftp_server_1_path_traversal::config {
     require   => Exec['port-forward-route'],
     notify    => File['/etc/systemd/system/pachevftp.service'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 }

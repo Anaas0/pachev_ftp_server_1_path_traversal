@@ -15,14 +15,21 @@ class pachev_ftp_server_1_path_traversal::install {
 
   exec { 'set-sed':
     command   => "sudo sed -i 's/172.33.0.51/172.22.0.51/g' /etc/systemd/system/docker.service.d/* /etc/environment /etc/apt/apt.conf /etc/security/pam_env.conf",
-    notify    => Exec['set-proxy_env'],
+    notify    => Exec['set-https-env'],
     logoutput => true,
     path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
-  exec { 'set-proxy_env':
-    command   => 'export http_proxy=172.22.0.51:3128; export https_proxy=172.22.0.51:3128;',
-    notify    => Package['install-rustc'],
+  exec { 'set-http-env':
+    command   => 'bash -c "export http_proxy=172.22.0.51:3128;"',
+    notify    => Exec['set-https-env'],
+    logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
+  }
+
+  exec { 'set-https-env':
+    command   => 'bash -c "export https_proxy=172.22.0.51:3128;"',
+    notify    => Package['rustc'],
     logoutput => true,
     path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
@@ -30,7 +37,7 @@ class pachev_ftp_server_1_path_traversal::install {
   ##############################################  ~PROXY SETTINGS END~  ###############################################
 
   # Install Rust
-  package { 'install-rustc':
+  package { 'rustc':
     ensure => 'rustc',
     notify => User['ftpusr'],
   }
@@ -49,7 +56,7 @@ class pachev_ftp_server_1_path_traversal::install {
     command   => 'unzip pachev_ftp-master.zip',
     cwd       => '/opt/pachev_ftp/',
     creates   => '/opt/pachev_ftp/pachev_ftp-master/',
-    require   => Package['install-rustc'],
+    require   => Package['rustc'],
     notify    => Exec['update-cargo'],
     logoutput => true,
     path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
@@ -80,7 +87,7 @@ class pachev_ftp_server_1_path_traversal::install {
   # Undo proxy settings
   ############################################## ~PROXY SETTINGS UNDO START~ ##############################################
   exec { 'undo-proxy-http':
-    command   => 'unset http_proxy',
+    command   => 'bash -c "unset http_proxy"',
     require   => Exec['build-ftpserver'],
     notify    => Exec['undo-proxy-https'],
     logoutput => true,
@@ -88,7 +95,7 @@ class pachev_ftp_server_1_path_traversal::install {
   }
 
   exec { 'undo-proxy-https':
-    command   => 'unset http_proxys',
+    command   => 'bash -c "unset https_proxy"',
     require   => Exec['undo-proxy-http'],
     notify    => Exec['restart-networking'],
     logoutput => true,
