@@ -12,17 +12,18 @@ Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ], environment =>
 
   exec { 'set-sed':
     command   => "sudo sed -i 's/172.33.0.51/172.22.0.51/g' /etc/systemd/system/docker.service.d/* /etc/environment /etc/apt/apt.conf /etc/security/pam_env.conf",
-    notify    => Exec['set-https-env'],
+    notify    => Package['rustc'],
     logoutput => true,
   }
 
   ##############################################  ~PROXY SETTINGS END~  ###############################################
 
   # Install Rust
-  ensure_resource('package', 'rustc',{
-    ensure => present,
+  package { 'rustc':
+    ensure => installed,
     notify => User['ftpusr'],
-  })
+  }
+  ensure_packages('rustc')
 
   # Create /opt/pachev_ftp directory
   file { '/opt/pachev_ftp':
@@ -70,7 +71,7 @@ Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ], environment =>
 
   exec { 'restart-networking':
     command   => 'service networking restart',
-    require   => Exec['undo-proxy-https'],
+    require   => Exec['build-ftpserver'],
     notify    => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
     logoutput => true,
   }

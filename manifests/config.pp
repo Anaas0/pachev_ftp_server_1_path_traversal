@@ -1,5 +1,6 @@
 #
 class pachev_ftp_server_1_path_traversal::config {
+  Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ], environment => [ 'http_proxy=172.22.0.51:3128', 'https_proxy=172.22.0.51:3128' ] }
   # Create user
   user { 'ftpusr':
     ensure     => present,
@@ -34,14 +35,14 @@ class pachev_ftp_server_1_path_traversal::config {
   # Create pachevftp.service
   file { '/opt/pachev_ftp/pachevftp.service':
     ensure => present,
-    source => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/pachevftp.service',
+    source => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/pachevftp.service',
     notify => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/fsys.cfg'],
   }
 
   # Create conf/fsys.cfg
   file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/fsys.cfg':
     ensure  => present,
-    source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/fsys.cfg',
+    source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/fsys.cfg',
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
     notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/users.cfg'],
   }
@@ -49,7 +50,7 @@ class pachev_ftp_server_1_path_traversal::config {
   # Create conf/users.cfg
   file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/users.cfg':
     ensure  => present,
-    source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/users.cfg',
+    source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/users.cfg',
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
     notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs/fserver.log'],
   }
@@ -57,7 +58,7 @@ class pachev_ftp_server_1_path_traversal::config {
   # Create logs/fserver.log
   file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs/fserver.log':
     ensure  => present,
-    source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/fserver.log',
+    source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/fserver.log',
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs'],
     notify  => File['/home/ftpusr/pachev_ftp'],
   }
@@ -72,7 +73,7 @@ class pachev_ftp_server_1_path_traversal::config {
   # Create flag file
   file { '/home/ftpusr/pachev_ftp/flag.txt':
     ensure  => present,
-    source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/flag.txt',
+    source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/flag.txt',
     require => File['/home/ftpusr/pachev_ftp'],
     notify  => Exec['port-forward-route'],
   }
@@ -85,7 +86,6 @@ class pachev_ftp_server_1_path_traversal::config {
     command   => 'sysctl -w net.ipv4.conf.all.route_localnet=1',
     notify    => Exec['port-forward-route-persist'],
     logoutput => true,
-    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   exec { 'port-forward-route-persist':
@@ -93,7 +93,6 @@ class pachev_ftp_server_1_path_traversal::config {
     require   => Exec['port-forward-route'],
     notify    => Exec['iptables'],
     logoutput => true,
-    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   exec { 'iptables':
@@ -101,6 +100,5 @@ class pachev_ftp_server_1_path_traversal::config {
     require   => Exec['port-forward-route'],
     notify    => File['/etc/systemd/system/pachevftp.service'],
     logoutput => true,
-    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 }
