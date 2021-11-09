@@ -11,28 +11,28 @@ class pachev_ftp_server_1_path_traversal::config {
   }
 
   # Create directory conf
-  file { 'opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf':
+  file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf':
     ensure  => 'directory',
     require => Exec['build-ftpserver'],
-    notify  => File['opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftproot'],
+    notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftproot'],
   }
 
   # Create directory ftproot
-  file { 'opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftproot':
+  file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftproot':
     ensure  => 'directory',
     require => Exec['build-ftpserver'],
-    notify  => File['opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs'],
+    notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs'],
   }
 
   # Create directory logs
-  file { 'opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs':
+  file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs':
     ensure  => 'directory',
     require => Exec['build-ftpserver'],
-    notify  => File['opt/pachev_ftp/pachevftp.service'],
+    notify  => File['/opt/pachev_ftp/pachevftp.service'],
   }
 
   # Create pachevftp.service
-  file { 'opt/pachev_ftp/pachevftp.service':
+  file { '/opt/pachev_ftp/pachevftp.service':
     ensure => present,
     source => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/pachevftp.service',
     notify => File['conf/fsys.cfg'],
@@ -42,7 +42,7 @@ class pachev_ftp_server_1_path_traversal::config {
   file { 'conf/fsys.cfg':
     ensure  => present,
     source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/fsys.cfg',
-    require => File['opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
+    require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
     notify  => File['conf/users.cfg'],
   }
 
@@ -50,7 +50,7 @@ class pachev_ftp_server_1_path_traversal::config {
   file { 'conf/users.cfg':
     ensure  => present,
     source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/users.cfg',
-    require => File['opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
+    require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
     notify  => File['logs/fserver.log'],
   }
 
@@ -58,7 +58,7 @@ class pachev_ftp_server_1_path_traversal::config {
   file { 'logs/fserver.log':
     ensure  => present,
     source  => 'puppet:///modules/pachev_ftp_server_1_path_traversal/files/fserver.log',
-    require => File['opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs'],
+    require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs'],
     notify  => File['home/ftpusr/pachev_ftp'],
   }
 

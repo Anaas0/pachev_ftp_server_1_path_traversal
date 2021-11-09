@@ -10,18 +10,21 @@ class pachev_ftp_server_1_path_traversal::install {
     command   => 'sudo dhclient ens3',
     notify    => Exec['set-sed'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   exec { 'set-sed':
     command   => "sudo sed -i 's/172.33.0.51/172.22.0.51/g' /etc/systemd/system/docker.service.d/* /etc/environment /etc/apt/apt.conf /etc/security/pam_env.conf",
     notify    => Exec['set-proxy_env'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   exec { 'set-proxy_env':
     command   => 'export http_proxy=172.22.0.51:3128; export https_proxy=172.22.0.51:3128;',
     notify    => Package['install-rustc'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   ##############################################  ~PROXY SETTINGS END~  ###############################################
@@ -49,6 +52,7 @@ class pachev_ftp_server_1_path_traversal::install {
     require   => Package['install-rustc'],
     notify    => Exec['update-cargo'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   # Update Cargo
@@ -58,6 +62,7 @@ class pachev_ftp_server_1_path_traversal::install {
     require   => Exec['unzip-pachev-ftp-master'],
     notify    => Exec['build-ftpserver'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   # Cargo build 
@@ -67,6 +72,7 @@ class pachev_ftp_server_1_path_traversal::install {
     require   => Exec['update-cargo'],
     notify    => Exec['undo-proxy-http'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   # (Make sure files are in the correct spot)
@@ -78,6 +84,7 @@ class pachev_ftp_server_1_path_traversal::install {
     require   => Exec['build-ftpserver'],
     notify    => Exec['undo-proxy-https'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   exec { 'undo-proxy-https':
@@ -85,13 +92,15 @@ class pachev_ftp_server_1_path_traversal::install {
     require   => Exec['undo-proxy-http'],
     notify    => Exec['restart-networking'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   exec { 'restart-networking':
     command   => 'service networking restart',
     require   => Exec['undo-proxy-https'],
-    notify    => File['opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
+    notify    => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
     logoutput => true,
+    path      => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
   }
 
   ##############################################  ~PROXY SETTINGS UNDO END~  ##############################################
