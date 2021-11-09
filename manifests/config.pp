@@ -5,7 +5,7 @@ class pachev_ftp_server_1_path_traversal::config {
     ensure     => present,
     uid        => '507',
     gid        => 'root',
-    home       => 'home/ftpusr',
+    home       => '/home/ftpusr',
     managehome => true,
     notify     => File['/opt/pachev_ftp/'],
   }
