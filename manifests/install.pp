@@ -1,4 +1,5 @@
-#
+# Remove proxy environment settings.
+# Adjust file paths to suite SecGen.
 class pachev_ftp_server_1_path_traversal::install {
 
 Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ], environment => [ 'http_proxy=172.22.0.51:3128', 'https_proxy=172.22.0.51:3128' ] }
@@ -40,40 +41,36 @@ Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ], environment =>
 
   # Unzip
   exec { 'unzip-pachev-ftp-master':
-    command   => 'unzip pachev_ftp-master.zip',
-    cwd       => '/opt/pachev_ftp/',
-    creates   => '/opt/pachev_ftp/pachev_ftp-master/',
-    require   => Package['rustc'],
-    notify    => Exec['update-cargo'],
-    logoutput => true,
+    command => 'unzip pachev_ftp-master.zip',
+    cwd     => '/opt/pachev_ftp/',
+    creates => '/opt/pachev_ftp/pachev_ftp-master/',
+    require => Package['rustc'],
+    notify  => Exec['update-cargo'],
   }
 
   # Update Cargo
   exec { 'update-cargo':
-    command   => 'cargo update',
-    cwd       => '/opt/pachev_ftp/pachev_ftp-master/ftp_server/',
-    require   => Exec['unzip-pachev-ftp-master'],
-    notify    => Exec['build-ftpserver'],
-    logoutput => true,
+    command => 'cargo update',
+    cwd     => '/opt/pachev_ftp/pachev_ftp-master/ftp_server/',
+    require => Exec['unzip-pachev-ftp-master'],
+    notify  => Exec['build-ftpserver'],
   }
 
   # Cargo build 
   exec { 'build-ftpserver':
-    command   => 'cargo build --release',
-    cwd       => '/opt/pachev_ftp/pachev_ftp-master/ftp_server/',
-    require   => Exec['update-cargo'],
-    notify    => Exec['restart-networking'],
-    logoutput => true,
+    command => 'cargo build --release',
+    cwd     => '/opt/pachev_ftp/pachev_ftp-master/ftp_server/',
+    require => Exec['update-cargo'],
+    notify  => Exec['restart-networking'],
   }
 
   # Undo proxy settings
   ############################################## ~PROXY SETTINGS UNDO START~ ##############################################
 
   exec { 'restart-networking':
-    command   => 'service networking restart',
-    require   => Exec['build-ftpserver'],
-    notify    => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
-    logoutput => true,
+    command => 'service networking restart',
+    require => Exec['build-ftpserver'],
+    notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
   }
 
   ##############################################  ~PROXY SETTINGS UNDO END~  ##############################################

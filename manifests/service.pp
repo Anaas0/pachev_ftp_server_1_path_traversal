@@ -1,4 +1,4 @@
-#Starts the Pachev FTP Server service.
+# Adjust file paths to suite SecGen.
 class pachev_ftp_server_1_path_traversal::service {
   require pachev_ftp_server_1_path_traversal::config
 

@@ -1,11 +1,12 @@
-#
+# Remove proxy environment settings.
+# Adjust file paths to suite SecGen.
 class pachev_ftp_server_1_path_traversal::config {
   Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ], environment => [ 'http_proxy=172.22.0.51:3128', 'https_proxy=172.22.0.51:3128' ] }
   # Create user
   user { 'ftpusr':
     ensure     => present,
     uid        => '507',
-    gid        => 'root',
+    gid        => 'root',#
     home       => '/home/ftpusr',
     managehome => true,
     notify     => File['/opt/pachev_ftp/'],
@@ -83,22 +84,19 @@ class pachev_ftp_server_1_path_traversal::config {
   # echo 'net.ipv4.conf.all.route_localnet=1' >> /etc/sysctl.conf
   # sudo iptables -t nat -I PREROUTING -p tcp --dport 21 -j DNAT --to 127.0.0.1:2121
   exec { 'port-forward-route':
-    command   => 'sysctl -w net.ipv4.conf.all.route_localnet=1',
-    notify    => Exec['port-forward-route-persist'],
-    logoutput => true,
+    command => 'sysctl -w net.ipv4.conf.all.route_localnet=1',
+    notify  => Exec['port-forward-route-persist'],
   }
 
   exec { 'port-forward-route-persist':
-    command   => "echo 'net.ipv4.conf.all.route_localnet=1' >> /etc/sysctl.conf",
-    require   => Exec['port-forward-route'],
-    notify    => Exec['iptables'],
-    logoutput => true,
+    command => "echo 'net.ipv4.conf.all.route_localnet=1' >> /etc/sysctl.conf",
+    require => Exec['port-forward-route'],
+    notify  => Exec['iptables'],
   }
 
   exec { 'iptables':
-    command   => 'iptables -t nat -I PREROUTING -p tcp --dport 21 -j DNAT --to 127.0.0.1:2121',
-    require   => Exec['port-forward-route'],
-    notify    => File['/etc/systemd/system/pachevftp.service'],
-    logoutput => true,
+    command => 'iptables -t nat -I PREROUTING -p tcp --dport 21 -j DNAT --to 127.0.0.1:2121',
+    require => Exec['port-forward-route'],
+    notify  => File['/etc/systemd/system/pachevftp.service'],
   }
 }
