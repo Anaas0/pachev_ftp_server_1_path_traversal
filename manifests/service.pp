@@ -13,9 +13,9 @@ class pachev_ftp_server_1_path_traversal::service {
     require => File['/etc/systemd/system/pachevftp.service'],
     notify  => Exec['set-perm-two'],
   }
-    exec { 'set-perm-two':
+  exec { 'set-perm-two':
     command => 'sudo setfacl -m u:ftpusr:rwx /etc/systemd/system/pachevftp.service',
-    require => File['set-perm-one'],
+    require => Exec['set-perm-one'],
     notify  => Service['pachevftp'],
   }
   service { 'pachevftp':
