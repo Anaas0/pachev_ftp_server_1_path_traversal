@@ -5,7 +5,7 @@ class pachev_ftp_server_1_path_traversal::config {
   # Create user
   user { 'ftpusr':
     ensure     => present,
-    uid        => '507',
+    uid        => '666',
     gid        => 'root',#
     home       => '/home/ftpusr',
     managehome => true,
@@ -61,6 +61,14 @@ class pachev_ftp_server_1_path_traversal::config {
     ensure  => present,
     source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/fserver.log',
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs'],
+    notify  => File['/etc/.pachevftpconf'],
+  }
+
+  # Create hidden file to hold service start arguments
+  file { '/etc/.pachevftpconf':
+    ensure  => present,
+    source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/pachevftpconf',
+    require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs/fserver.log'],
     notify  => File['/home/ftpusr/pachev_ftp'],
   }
 
@@ -79,10 +87,6 @@ class pachev_ftp_server_1_path_traversal::config {
     notify  => Exec['port-forward-route'],
   }
 
-  # Port forwarder - Make sure you save net.ipv4.conf.all.route_localnet=1 in /etc/sysctl.conf otherwise it won't be persistent
-  # sudo sysctl -w net.ipv4.conf.all.route_localnet=1
-  # echo 'net.ipv4.conf.all.route_localnet=1' >> /etc/sysctl.conf
-  # sudo iptables -t nat -I PREROUTING -p tcp --dport 21 -j DNAT --to 127.0.0.1:2121
   exec { 'port-forward-route':
     command => 'sysctl -w net.ipv4.conf.all.route_localnet=1',
     notify  => Exec['port-forward-route-persist'],

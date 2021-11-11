@@ -1,23 +1,17 @@
 # Remove proxy environment settings.
 # Adjust file paths to suite SecGen.
 class pachev_ftp_server_1_path_traversal::install {
-
-Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ], environment => [ 'http_proxy=172.22.0.51:3128', 'https_proxy=172.22.0.51:3128' ] }
-  ############################################## ~PROXY SETTINGS START~ ###############################################
-
+  Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ], environment => [ 'http_proxy=172.22.0.51:3128', 'https_proxy=172.22.0.51:3128' ] }
   exec { 'set-nic-dhcp':
     command   => 'sudo dhclient ens3',
     notify    => Exec['set-sed'],
     logoutput => true,
   }
-
   exec { 'set-sed':
     command   => "sudo sed -i 's/172.33.0.51/172.22.0.51/g' /etc/systemd/system/docker.service.d/* /etc/environment /etc/apt/apt.conf /etc/security/pam_env.conf",
     notify    => Package['rustc'],
     logoutput => true,
   }
-
-  ##############################################  ~PROXY SETTINGS END~  ###############################################
 
   # Install Rust
   package { 'rustc':

@@ -1,6 +1,3 @@
-# Give permissions to ftpusr.
-# rx for /opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftp_server
-# rx for /etc/systemd/system/pachevftp.service
 [Unit]
 Description=Pachev FTP Server
 After=network.target
@@ -11,7 +8,8 @@ Type=simple
 Restart=always
 RestartSec=1
 User=ftpusr
-ExecStart=/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftp_server -p 2121
+EnvironmentFile=/etc/.pachevftpconf
+ExecStart=/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftp_server $ARG1 $ARG2
 WorkingDirectory=/opt/pachev_ftp
 
 [Install]
