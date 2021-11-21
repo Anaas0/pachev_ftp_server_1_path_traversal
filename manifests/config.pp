@@ -2,6 +2,14 @@
 # Adjust file paths to suite SecGen.
 class pachev_ftp_server_1_path_traversal::config {
   Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ], environment => [ 'http_proxy=172.22.0.51:3128', 'https_proxy=172.22.0.51:3128' ] }
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $raw_org = $secgen_parameters['organisation']
+  $leaked_filenames = $secgen_parameters['leaked_filenames']
+  $strings_to_leak = $secgen_parameters['']
+  # Would let the attacker see the usernames and passwords of the FTP server.
+  # /home/ftpusr
+  $strings_to_pre_leak = $secgen_parameters['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/users.cfg']
+
   # Create user
   user { 'ftpusr':
     ensure     => present,
