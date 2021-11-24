@@ -5,6 +5,8 @@ class pachev_ftp_server_1_path_traversal::service {
   file { '/etc/systemd/system/pachevftp.service':
     ensure  => present,
     source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/pachevftp.service',
+    owner   => 'root',
+    mode    => '0777', # Full permissions.
     notify  => Exec['set-perm-one'],
     require => File['/opt/pachev_ftp/pachevftp.service'],
   }

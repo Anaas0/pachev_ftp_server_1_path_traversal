@@ -23,6 +23,8 @@ class pachev_ftp_server_1_path_traversal::install {
   # Create /opt/pachev_ftp directory
   file { '/opt/pachev_ftp':
     ensure => 'directory',
+    owner  => 'ftpusr',
+    mode   => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     notify => File['/opt/pachev_ftp/pachev_ftp-master.zip'],
   }
 
@@ -30,6 +32,8 @@ class pachev_ftp_server_1_path_traversal::install {
   file { '/opt/pachev_ftp/pachev_ftp-master.zip':
     source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/pachev_ftp-master.zip',
     require => User['ftpusr'],
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     notify  => Exec['unzip-pachev-ftp-master'],
   }
 

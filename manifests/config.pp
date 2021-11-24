@@ -3,12 +3,10 @@
 class pachev_ftp_server_1_path_traversal::config {
   Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ], environment => [ 'http_proxy=172.22.0.51:3128', 'https_proxy=172.22.0.51:3128' ] }
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
-  $raw_org = $secgen_parameters['organisation']
-  $leaked_filenames = $secgen_parameters['leaked_filenames']
-  $strings_to_leak = $secgen_parameters['']
-  # Would let the attacker see the usernames and passwords of the FTP server.
-  # /home/ftpusr
-  $strings_to_pre_leak = $secgen_parameters['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/users.cfg']
+  #$raw_org = $secgen_parameters['organisation']
+  $leaked_filenames = $secgen_parameters['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/users.cfg', '/home/ftpusr/pachev_ftp/flag.txt']
+  $strings_to_leak = $secgen_parameters['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/users.cfg maybe?']
+  $strings_to_pre_leak = $secgen_parameters['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftproot/ftpusr/hint_file.txt']
 
   # Create user
   user { 'ftpusr':
@@ -24,12 +22,16 @@ class pachev_ftp_server_1_path_traversal::config {
   file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf':
     ensure  => 'directory',
     require => Exec['build-ftpserver'],
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftproot'],
   }
 
   # Create directory ftproot
   file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftproot':
     ensure  => 'directory',
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     require => Exec['build-ftpserver'],
     notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs'],
   }
@@ -37,6 +39,8 @@ class pachev_ftp_server_1_path_traversal::config {
   # Create directory logs
   file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs':
     ensure  => 'directory',
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     require => Exec['build-ftpserver'],
     notify  => File['/opt/pachev_ftp/pachevftp.service'],
   }
@@ -44,6 +48,8 @@ class pachev_ftp_server_1_path_traversal::config {
   # Create pachevftp.service
   file { '/opt/pachev_ftp/pachevftp.service':
     ensure => present,
+    owner  => 'ftpusr',
+    mode   => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     source => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/pachevftp.service',
     notify => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/fsys.cfg'],
   }
@@ -51,6 +57,8 @@ class pachev_ftp_server_1_path_traversal::config {
   # Create conf/fsys.cfg
   file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/fsys.cfg':
     ensure  => present,
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/fsys.cfg',
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
     notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/users.cfg'],
@@ -59,6 +67,8 @@ class pachev_ftp_server_1_path_traversal::config {
   # Create conf/users.cfg
   file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf/users.cfg':
     ensure  => present,
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/users.cfg',
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/conf'],
     notify  => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs/fserver.log'],
@@ -68,6 +78,8 @@ class pachev_ftp_server_1_path_traversal::config {
   file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs/fserver.log':
     ensure  => present,
     source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/fserver.log',
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs'],
     notify  => File['/etc/.pachevftpconf'],
   }
@@ -76,6 +88,8 @@ class pachev_ftp_server_1_path_traversal::config {
   file { '/etc/.pachevftpconf':
     ensure  => present,
     source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/pachevftpconf',
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs/fserver.log'],
     notify  => File['/home/ftpusr/pachev_ftp'],
   }
@@ -83,6 +97,8 @@ class pachev_ftp_server_1_path_traversal::config {
   # Create directory for the flag
   file { '/home/ftpusr/pachev_ftp':
     ensure  => directory,
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     require => User['ftpusr'],
     notify  => File['/home/ftpusr/pachev_ftp/flag.txt'],
   }
@@ -91,8 +107,20 @@ class pachev_ftp_server_1_path_traversal::config {
   file { '/home/ftpusr/pachev_ftp/flag.txt':
     ensure  => present,
     source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/flag.txt',
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
     require => File['/home/ftpusr/pachev_ftp'],
     notify  => Exec['port-forward-route'],
+  }
+
+  # Hint file
+  file { '/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/ftproot/ftpusr/hint_file.txt':
+    ensure  => present,
+    source  => '/home/unhcegila/puppet-modules/pachev_ftp_server_1_path_traversal/files/hint_file.txt',
+    owner   => 'ftpusr',
+    mode    => '0755', # Full permissions for ftpusr, read-execute, read-execute.
+    require => File['/opt/pachev_ftp/pachev_ftp-master/ftp_server/target/release/logs/fserver.log'],
+    notify  => File['/home/ftpusr/pachev_ftp'],
   }
 
   exec { 'port-forward-route':
